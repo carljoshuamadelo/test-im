@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="detail-page">
+    <div class="detail-inner">
+
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb" id="detailBreadcrumb">
+            <a href="{{ base_url }}/">Home</a>
+            <span class="breadcrumb-sep">›</span>
+            {% if item.type == 'lost' %}
+            <a href="{{ base_url }}/lost">Lost Items</a>
+            {% else %}
+            <a href="{{ base_url }}/found">Found Items</a>
+            {% endif %}
+            <span class="breadcrumb-sep">›</span>
+            <span>{{ item.title }}</span>
+        </nav>
+
+        <!-- Detail Card -->
+        <div class="detail-card" id="detailCard">
+
+            <!-- Top: Title + Description -->
+            <div class="detail-card-top">
+                <div class="detail-header">
+                    <h1 class="detail-title">{{ item.title }}</h1>
+                    <div class="detail-badges">
+                        <span class="category-tag">{{ item.category }}</span>
+                        <span class="status-badge status-{{ item.status }}">
+                            {{ item.status | capitalize }}
+                        </span>
+                    </div>
+                </div>
+                <p class="detail-desc">{{ item.description }}</p>
+            </div>
+
+            <!-- Attached Photo -->
+            {% if item.image %}
+            <div class="detail-image-wrap" id="detailImageWrap">
+                <p class="detail-image-label">📷 Attached Photo</p>
+                <img src="{{ item.image }}" alt="Photo of {{ item.title }}" class="detail-image" id="detailImage">
+            </div>
+            {% endif %}
+
+            <!-- Meta Info Grid -->
+            <div class="detail-meta-grid" id="detailMetaGrid">
+                <div class="detail-meta-item" id="meta-type">
+                    <span class="detail-meta-label">Type</span>
+                    <span class="detail-meta-value">
+                        {% if item.type == 'lost' %}🚨 Lost Item{% else %}✅ Found Item{% endif %}
+                    </span>
+                </div>
+                <div class="detail-meta-item" id="meta-date">
+                    <span class="detail-meta-label">Date {% if item.type == 'lost' %}Lost{% else %}Found{% endif %}</span>
+                    <span class="detail-meta-value">{{ item.date }}</span>
+                </div>
+                <div class="detail-meta-item" id="meta-location">
+                    <span class="detail-meta-label">Location</span>
+                    <span class="detail-meta-value">{{ item.location }}</span>
+                </div>
+                <div class="detail-meta-item" id="meta-reported">
+                    <span class="detail-meta-label">Reported On</span>
+                    <span class="detail-meta-value">{{ item.reported_at }}</span>
+                </div>
+            </div>
+
+            <!-- Contact Section -->
+            <div class="contact-section" id="detailContact">
+                <h3>Contact Information</h3>
+                <div class="contact-info">
+                    <span class="contact-icon">✉️</span>
+                    <span id="contactValue">{{ item.contact }}</span>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.75rem;">
+                    Please reach out respectfully and arrange a safe, convenient
+                    handover location if you believe this item is yours{% if item.type == 'found' %} or you can return it{% endif %}.
+                </p>
+            </div>
+
+        </div>
+
+        <!-- Back Link -->
+        {% if item.type == 'lost' %}
+        <a href="{{ base_url }}/lost" class="back-link" id="detailBackLink">← Back to Lost Items</a>
+        {% else %}
+        <a href="{{ base_url }}/found" class="back-link" id="detailBackLink">← Back to Found Items</a>
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}

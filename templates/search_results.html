@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Search Header -->
+<div class="search-header" id="searchHeader">
+    <div class="search-header-inner">
+        {% if query %}
+        <h1>Results for "{{ query }}"</h1>
+        <p>{{ results | length }} item{{ 's' if results | length != 1 }} found</p>
+        {% else %}
+        <h1>Search Lost &amp; Found Items</h1>
+        <p>Enter a keyword to search across all reports</p>
+        {% endif %}
+
+        <form class="search-form" action="{{ base_url }}/search" method="GET" id="searchPageForm">
+            <input type="text" name="q" value="{{ query }}"
+                   placeholder="Search by item name, location, category…"
+                   class="search-form-input" id="searchPageInput" autofocus>
+            <button type="submit" class="search-form-btn" id="searchPageBtn">Search</button>
+        </form>
+    </div>
+</div>
+
+<!-- Results -->
+<div class="page-section">
+    <div class="container">
+        {% if query %}
+            {% if results %}
+            <div class="item-grid" id="searchResultsGrid">
+                {% for item in results %}
+                <a href="{{ base_url }}/item/{{ item.id }}" class="item-card" id="search-result-{{ item.id }}">
+                    <div class="item-card-header">
+                        <span class="category-tag">{{ item.category }}</span>
+                        <span class="status-badge status-{{ item.status }}">{{ item.status | capitalize }}</span>
+                    </div>
+                    <div class="item-title">{{ item.title }}</div>
+                    <div class="item-desc">
+                        {{ item.description[:120] }}{% if item.description | length > 120 %}…{% endif %}
+                    </div>
+                    <div class="item-meta">
+                        <span class="meta-item">📍 {{ item.location }}</span>
+                        <span class="meta-item">📅 {{ item.date }}</span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state" id="noSearchResults">
+                <span class="empty-state-icon">🔎</span>
+                <h3>No results for "{{ query }}"</h3>
+                <p>Try different keywords, or browse all lost and found items below.</p>
+                <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <a href="{{ base_url }}/lost" class="btn-outline-lost" id="browseAllLost">Browse Lost Items</a>
+                    <a href="{{ base_url }}/found" class="btn-outline-found" id="browseAllFound">Browse Found Items</a>
+                </div>
+            </div>
+            {% endif %}
+        {% else %}
+        <div class="empty-state" id="searchPrompt">
+            <span class="empty-state-icon">💡</span>
+            <h3>Start your search</h3>
+            <p>Type in the search box above to find lost or found items by name, location, or category.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

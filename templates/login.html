@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .login-container {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 40px 20px;
+  }
+
+  .login-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .login-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 50px 40px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .login-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
+  }
+
+  .login-card.admin {
+    border-top: 5px solid #dc3545;
+  }
+
+  .login-card.user {
+    border-top: 5px solid #0066cc;
+  }
+
+  .card-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .card-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  .card-subtitle {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+
+  .login-card.admin .form-input:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+  }
+
+  .btn-login {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+  }
+
+  .btn-login.user {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+  }
+
+  .btn-login.user:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+  }
+
+  .btn-login.admin {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+  }
+
+  .btn-login.admin:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(220, 53, 69, 0.4);
+  }
+
+  .demo-credentials {
+    margin-top: 25px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    font-size: 13px;
+  }
+
+  .demo-title {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+  }
+
+  .demo-text {
+    color: #666;
+    line-height: 1.6;
+  }
+
+  .alert {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    color: #856404;
+    font-size: 14px;
+  }
+
+  .back-link {
+    text-align: center;
+    margin-top: 30px;
+  }
+
+  .back-link a {
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    transition: opacity 0.3s ease;
+  }
+
+  .back-link a:hover {
+    opacity: 0.8;
+  }
+
+  @media (max-width: 768px) {
+    .login-wrapper {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .login-card {
+      padding: 40px 30px;
+    }
+
+    .login-container {
+      min-height: auto;
+      padding: 20px;
+    }
+  }
+</style>
+
+<div class="login-container">
+  <div class="login-wrapper">
+    <!-- User Login Card -->
+    <div class="login-card user">
+      <div class="card-icon">👤</div>
+      <h2 class="card-title">User Login</h2>
+      <p class="card-subtitle">Access your account</p>
+
+      {% if error %}
+        <div class="alert">{{ error }}</div>
+      {% endif %}
+
+      <form method="POST">
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" name="username" required placeholder="your@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" name="password" required placeholder="••••••••">
+        </div>
+        <input type="hidden" name="login_type" value="user">
+        <button type="submit" class="btn-login user">Sign In</button>
+      </form>
+
+      <div class="demo-credentials">
+        <div class="demo-title">Demo Account:</div>
+        <div class="demo-text">
+          📧 user1@email.com<br>
+          🔑 password123
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Login Card -->
+    <div class="login-card admin">
+      <div class="card-icon">🔐</div>
+      <h2 class="card-title">Admin Login</h2>
+      <p class="card-subtitle">Administrator access</p>
+
+      {% if error %}
+        <div class="alert">{{ error }}</div>
+      {% endif %}
+
+      <form method="POST">
+        <div class="form-group">
+          <label class="form-label">Admin Username</label>
+          <input type="text" class="form-input" name="username" required placeholder="Enter username">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Admin Password</label>
+          <input type="password" class="form-input" name="password" required placeholder="••••••••">
+        </div>
+        <input type="hidden" name="login_type" value="admin">
+        <button type="submit" class="btn-login admin">Admin Sign In</button>
+      </form>
+
+      <div class="demo-credentials">
+        <div class="demo-title">Demo Account:</div>
+        <div class="demo-text">
+          👤 admin<br>
+          🔑 admin123
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="back-link">
+    <a href="{{ base_url }}/">← Back to Home</a>
+  </div>
+</div>
+{% endblock %}
+

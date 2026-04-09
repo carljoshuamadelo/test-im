@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="content-section" style="max-width: 860px; text-align: center;">
+	<h2 class="section-title">Our Story</h2>
+	<p
+		style="font-size: 1.2rem; color: var(--color-black); margin-bottom: 2.5rem; line-height: 1.9; font-style: italic;">
+		"Timplabrew was born from a simple idea: that coffee should be crafted with intention and enjoyed with purpose."
+	</p>
+
+	<div
+		style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 2rem; text-align: left; margin-top: 3rem;">
+		<div style="border-top: 3px solid var(--color-brown); padding-top: 1.5rem;">
+			<h4
+				style="font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 2px; font-size: 1rem; margin-bottom: 1rem;">
+				Our Origins</h4>
+			<p class="text-muted" style="line-height: 1.8; font-size: 0.95rem;">
+				Founded in 2023, we source beans from sustainable farms around the globe, ensuring every cup supports
+				the growers and the environment.
+			</p>
+		</div>
+		<div style="border-top: 3px solid var(--color-brown); padding-top: 1.5rem;">
+			<h4
+				style="font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 2px; font-size: 1rem; margin-bottom: 1rem;">
+				Our Process</h4>
+			<p class="text-muted" style="line-height: 1.8; font-size: 0.95rem;">
+				Our small-batch roasting process highlights the unique flavor profile of every origin — from bright
+				Ethiopian naturals to deep Sumatran earthy notes.
+			</p>
+		</div>
+		<div style="border-top: 3px solid var(--color-brown); padding-top: 1.5rem;">
+			<h4
+				style="font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 2px; font-size: 1rem; margin-bottom: 1rem;">
+				Our Community</h4>
+			<p class="text-muted" style="line-height: 1.8; font-size: 0.95rem;">
+				Whether you are stopping by for a quick cold brew or joining our weekend cupping workshops, we are
+				thrilled to share our passion with you.
+			</p>
+		</div>
+	</div>
+</section>
+{% endblock %}

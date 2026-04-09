@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="form-page">
+    <div class="form-card" id="reportFormCard">
+
+        <!-- Header -->
+        <div class="form-card-header">
+            <span class="form-type-badge {% if form_type == 'lost' %}badge-lost{% else %}badge-found{% endif %}">
+                {% if form_type == 'lost' %}🚨 Lost Item{% else %}✅ Found Item{% endif %}
+            </span>
+            <h1>{{ title }}</h1>
+            <p>
+                {% if form_type == 'lost' %}
+                Fill in the details below to report your lost item. The more detail you provide, the better your chances of recovery.
+                {% else %}
+                Fill in the details below to report an item you found. Your report could reunite someone with something important.
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- Alerts -->
+        {% if error %}
+        <div class="alert alert-danger" id="formError" role="alert">
+            ⚠️ {{ error }}
+        </div>
+        {% endif %}
+
+        {% if success %}
+        <div class="alert alert-success" id="formSuccess" role="alert">
+            ✅ {{ success }}
+        </div>
+        {% endif %}
+
+        <!-- Form -->
+        <form method="POST" action="{{ base_url }}/report-{{ form_type }}" id="reportForm"
+              enctype="multipart/form-data" novalidate>
+
+            <!-- Item Title -->
+            <div class="form-group">
+                <label class="form-label" for="title">
+                    Item Name / Title <span class="req">*</span>
+                </label>
+                <input type="text" class="form-control" id="title" name="title"
+                       placeholder="e.g. Black leather wallet, iPhone 15 Pro…"
+                       value="{{ form_data.get('title', '') }}" required>
+            </div>
+
+            <!-- Category + Date -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="category">
+                        Category <span class="req">*</span>
+                    </label>
+                    <select class="form-control" id="category" name="category" required>
+                        <option value="">Select category…</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat }}"
+                            {% if form_data.get('category') == cat %}selected{% endif %}>
+                            {{ cat }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="date">
+                        Date {% if form_type == 'lost' %}Lost{% else %}Found{% endif %} <span class="req">*</span>
+                    </label>
+                    <input type="date" class="form-control" id="date" name="date"
+                           value="{{ form_data.get('date', '') }}" required>
+                </div>
+            </div>
+
+            <!-- Location -->
+            <div class="form-group">
+                <label class="form-label" for="location">
+                    Location <span class="req">*</span>
+                </label>
+                <input type="text" class="form-control" id="location" name="location"
+                       placeholder="e.g. Central Park, Main Street Bus Stop, City Library…"
+                       value="{{ form_data.get('location', '') }}" required>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+                <label class="form-label" for="description">
+                    Description <span class="req">*</span>
+                </label>
+                <textarea class="form-control" id="description" name="description"
+                          placeholder="Describe the item in detail — color, size, brand, distinguishing marks, contents…"
+                          rows="4" required>{{ form_data.get('description', '') }}</textarea>
+            </div>
+
+            <!-- Contact -->
+            <div class="form-group">
+                <label class="form-label" for="contact">
+                    Contact Information <span class="req">*</span>
+                </label>
+                <input type="text" class="form-control" id="contact" name="contact"
+                       placeholder="Email address or phone number"
+                       value="{{ form_data.get('contact', '') }}" required>
+            </div>
+
+            <!-- Image Upload -->
+            <div class="form-group">
+                <label class="form-label" for="image">
+                    📷 Photo Attachment <span style="color:var(--text-muted);font-weight:400;font-size:0.82rem;">(Optional — PNG, JPG, GIF, WEBP · max 5 MB)</span>
+                </label>
+
+                <div class="upload-zone" id="uploadZone">
+                    <input type="file" id="image" name="image" accept=".png,.jpg,.jpeg,.gif,.webp"
+                           class="upload-input" aria-label="Attach an image">
+                    <div class="upload-placeholder" id="uploadPlaceholder">
+                        <span class="upload-icon">🖼️</span>
+                        <p class="upload-text">Drag &amp; drop an image here, or <strong>click to browse</strong></p>
+                        <p class="upload-hint">PNG · JPG · GIF · WEBP up to 5 MB</p>
+                    </div>
+                    <div class="upload-preview-wrap" id="uploadPreviewWrap" style="display:none;">
+                        <img id="uploadPreviewImg" src="" alt="Preview" class="upload-preview-img">
+                        <button type="button" class="upload-remove-btn" id="uploadRemoveBtn" title="Remove image">✕ Remove</button>
+                    </div>
+                </div>
+                <p class="upload-error" id="uploadError" style="display:none;"></p>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="submit-btn submit-btn-{{ form_type }}" id="submitReportBtn">
+                {% if form_type == 'lost' %}
+                🚨 Submit Lost Item Report
+                {% else %}
+                ✅ Submit Found Item Report
+                {% endif %}
+            </button>
+
+        </form>
+
+        <!-- Back link -->
+        <div style="text-align: center; margin-top: 1.5rem;">
+            {% if form_type == 'lost' %}
+            <a href="{{ base_url }}/lost" class="back-link" id="backToLost">
+                ← Back to Lost Items
+            </a>
+            {% else %}
+            <a href="{{ base_url }}/found" class="back-link" id="backToFound">
+                ← Back to Found Items
+            </a>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+<style>
+/* ---- Upload Zone ---- */
+.upload-zone {
+    position: relative;
+    border: 2px dashed var(--border-color, #3a3a5c);
+    border-radius: 12px;
+    background: var(--card-bg, #1a1a2e);
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    overflow: hidden;
+    min-height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.upload-zone:hover,
+.upload-zone.drag-over {
+    border-color: var(--accent, #7c6dfa);
+    background: rgba(124,109,250,.07);
+}
+.upload-input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    z-index: 2;
+}
+.upload-placeholder {
+    text-align: center;
+    padding: 1.5rem;
+    pointer-events: none;
+    z-index: 1;
+}
+.upload-icon { font-size: 2.2rem; display: block; margin-bottom: .5rem; }
+.upload-text  { font-size: .95rem; color: var(--text-secondary, #aaa); margin: 0 0 .25rem; }
+.upload-hint  { font-size: .78rem; color: var(--text-muted, #666); margin: 0; }
+.upload-preview-wrap {
+    position: relative;
+    width: 100%;
+    text-align: center;
+    padding: 1rem;
+    z-index: 1;
+}
+.upload-preview-img {
+    max-height: 220px;
+    max-width: 100%;
+    border-radius: 8px;
+    object-fit: contain;
+    box-shadow: 0 4px 18px rgba(0,0,0,.35);
+    display: block;
+    margin: 0 auto .75rem;
+}
+.upload-remove-btn {
+    background: rgba(220,50,50,.15);
+    color: #ff6b6b;
+    border: 1px solid rgba(220,50,50,.3);
+    border-radius: 6px;
+    padding: .3rem .85rem;
+    font-size: .82rem;
+    cursor: pointer;
+    transition: background .2s;
+    z-index: 3;
+    position: relative;
+}
+.upload-remove-btn:hover { background: rgba(220,50,50,.3); }
+.upload-error { color: #ff6b6b; font-size: .83rem; margin-top: .4rem; }
+</style>
+
+<script>
+(function () {
+    const zone        = document.getElementById('uploadZone');
+    const input       = document.getElementById('image');
+    const placeholder = document.getElementById('uploadPlaceholder');
+    const previewWrap = document.getElementById('uploadPreviewWrap');
+    const previewImg  = document.getElementById('uploadPreviewImg');
+    const removeBtn   = document.getElementById('uploadRemoveBtn');
+    const errorMsg    = document.getElementById('uploadError');
+
+    const ALLOWED = ['image/png','image/jpeg','image/gif','image/webp'];
+    const MAX_MB  = 5;
+
+    function showPreview(file) {
+        errorMsg.style.display = 'none';
+        if (!ALLOWED.includes(file.type)) {
+            errorMsg.textContent = '⚠️ Only PNG, JPG, GIF, or WEBP images are allowed.';
+            errorMsg.style.display = 'block';
+            input.value = '';
+            return;
+        }
+        if (file.size > MAX_MB * 1024 * 1024) {
+            errorMsg.textContent = `⚠️ File is too large. Maximum size is ${MAX_MB} MB.`;
+            errorMsg.style.display = 'block';
+            input.value = '';
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            previewImg.src = e.target.result;
+            placeholder.style.display = 'none';
+            previewWrap.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function clearPreview() {
+        input.value = '';
+        previewImg.src = '';
+        previewWrap.style.display = 'none';
+        placeholder.style.display = 'block';
+        errorMsg.style.display = 'none';
+    }
+
+    input.addEventListener('change', function () {
+        if (this.files && this.files[0]) showPreview(this.files[0]);
+    });
+
+    removeBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        clearPreview();
+    });
+
+    zone.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        zone.classList.add('drag-over');
+    });
+    zone.addEventListener('dragleave', function () {
+        zone.classList.remove('drag-over');
+    });
+    zone.addEventListener('drop', function (e) {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file) {
+            // Sync to input for form submission
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            input.files = dt.files;
+            showPreview(file);
+        }
+    });
+})();
+</script>
+
+{% endblock %}
+

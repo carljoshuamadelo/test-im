@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="content-section">
+  <h2 class="section-title">Our Products</h2>
+  <div class="item-grid">
+    {% for product in product_items %}
+    <div class="item-card" style="padding: 0; overflow: hidden; text-align: left;">
+      <img src="{{ base_url }}/img/{{ product.image }}" alt="{{ product.name }}"
+        style="width: 100%; height: 220px; object-fit: cover; display: block;">
+      <div style="padding: 1.5rem;">
+        <h4 style="margin-bottom: 0.25rem;">{{ product.name }}</h4>
+        <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1rem;">{{ product.brand }}</p>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="item-price" style="margin: 0;">₱{{ product.price }}</div>
+          <span style="
+                        font-family: 'Oswald', sans-serif;
+                        font-size: 0.75rem;
+                        text-transform: uppercase;
+                        letter-spacing: 1px;
+                        padding: 0.3rem 0.75rem;
+                        border: 1px solid var(--color-border);
+                        color: #555;
+                    ">{{ product.stock }}</span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

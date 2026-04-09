@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Filter Bar -->
+<div class="filter-bar" id="filterBar">
+    <form class="filter-bar-inner" method="GET" action="{{ base_url }}/found" id="foundFilterForm">
+        <span class="filter-bar-title">✅ Found Items</span>
+
+        <select name="category" class="filter-select" id="categoryFilter">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+            <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+        </select>
+
+        <input type="text" name="location" value="{{ location_filter }}"
+               placeholder="Filter by location…" class="filter-input" id="locationFilter">
+
+        <button type="submit" class="filter-btn" id="applyFilter">Filter</button>
+
+        {% if selected_category or location_filter %}
+        <a href="{{ base_url }}/found" class="clear-filter" id="clearFilter">✕ Clear</a>
+        {% endif %}
+
+        <span class="filter-count" id="filterCount">{{ items | length }} result{{ 's' if items | length != 1 }}</span>
+    </form>
+</div>
+
+<!-- Items Grid -->
+<div class="page-section">
+    <div class="container">
+        {% if items %}
+        <div class="item-grid" id="foundItemsGrid">
+            {% for item in items %}
+            <a href="{{ base_url }}/item/{{ item.id }}" class="item-card" id="found-item-{{ item.id }}">
+                {% if item.image %}
+                <div class="item-card-image">
+                    <img src="{{ item.image }}" alt="{{ item.title }}" class="item-image">
+                </div>
+                {% else %}
+                <div class="item-card-image item-card-image-empty">
+                    <div class="item-image-placeholder">📦</div>
+                </div>
+                {% endif %}
+                <div class="item-card-header">
+                    <span class="category-tag">{{ item.category }}</span>
+                    <span class="status-badge status-{{ item.publish_status }}">{{ item.publish_status | capitalize }}</span>
+                </div>
+                <div class="item-title">{{ item.title }}</div>
+                <div class="item-desc">
+                    {{ item.description[:120] }}{% if item.description | length > 120 %}…{% endif %}
+                </div>
+                <div class="item-meta">
+                    <span class="meta-item">📍 {{ item.location }}</span>
+                    <span class="meta-item">📅 Date Found: {{ item.date }}</span>
+                    <span class="meta-item">🕐 Reported: {{ item.reported_at }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state" id="noFoundItems">
+            <span class="empty-state-icon">📦</span>
+            <h3>No found items here yet</h3>
+            <p>
+                {% if selected_category or location_filter %}
+                No items match your current filters. Try adjusting them.
+                {% else %}
+                No found items have been reported yet. Did you find something?
+                {% endif %}
+            </p>
+            <div style="margin-top: 1.5rem;">
+                <a href="{{ base_url }}/report-found" class="btn-outline-found" id="reportFoundLink">Report a Found Item</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
