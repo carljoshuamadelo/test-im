@@ -233,6 +233,227 @@
     box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
   }
 
+  .btn-edit {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .btn-edit:hover {
+    background: #5a6fd6;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+
+  .btn-archive {
+    background: #ffc107;
+    color: #333;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-archive:hover {
+    background: #e0a800;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+  }
+
+  .btn-delete {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-delete:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+  }
+
+  .action-btns {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .badge-archived {
+    background: #fff3e0;
+    color: #e65100;
+  }
+
+  /* Claim Cards */
+  .claim-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    transition: box-shadow 0.3s ease;
+  }
+
+  .claim-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .claim-header {
+    padding: 20px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .claim-item-info {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .claim-item-img {
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .claim-item-img-placeholder {
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    background: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+
+  .claim-item-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 6px;
+  }
+
+  .claim-item-meta {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 6px;
+  }
+
+  .claim-item-desc {
+    font-size: 13px;
+    color: #888;
+    line-height: 1.4;
+  }
+
+  .claim-body {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .claim-section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e0e0e0;
+  }
+
+  .claim-detail {
+    font-size: 14px;
+    color: #444;
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+
+  .claim-proof {
+    font-size: 14px;
+    color: #444;
+    line-height: 1.6;
+    background: #fffbeb;
+    padding: 14px;
+    border-radius: 8px;
+    border-left: 4px solid #ffc107;
+  }
+
+  .claim-actions {
+    padding: 16px 20px;
+    background: #f8f9fa;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn-confirm-claim {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-confirm-claim:hover {
+    background: #218838;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+  }
+
+  .btn-reject-claim {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-reject-claim:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+  }
+
+  @media (max-width: 768px) {
+    .claim-body {
+      grid-template-columns: 1fr;
+    }
+    .claim-item-info {
+      flex-direction: column;
+    }
+    .claim-actions {
+      flex-direction: column;
+    }
+  }
+
   .empty-state {
     text-align: center;
     padding: 60px 30px;
@@ -290,6 +511,10 @@
       <div class="stat-label">⏳ Pending</div>
       <div class="stat-value">{{ pending_count }}</div>
     </div>
+    <div class="stat-card" style="border-left-color: #7c3aed;">
+      <div class="stat-label">📋 Claims</div>
+      <div class="stat-value">{{ claims_count }}</div>
+    </div>
     <div class="stat-card published">
       <div class="stat-label">✅ Published</div>
       <div class="stat-value">{{ published_count }}</div>
@@ -297,6 +522,10 @@
     <div class="stat-card claimed">
       <div class="stat-label">🎯 Claimed</div>
       <div class="stat-value">{{ claimed_count }}</div>
+    </div>
+    <div class="stat-card" style="border-left-color: #e65100;">
+      <div class="stat-label">📁 Archived</div>
+      <div class="stat-value">{{ archived_count }}</div>
     </div>
     <div class="stat-card total">
       <div class="stat-label">📋 Total</div>
@@ -307,8 +536,10 @@
   <!-- Tabs Navigation -->
   <div class="admin-tabs" role="tablist">
     <button class="admin-tab active" data-tab="pending">⏳ Pending ({{ pending_count }})</button>
+    <button class="admin-tab" data-tab="claims">📋 Claims ({{ claims_count }})</button>
     <button class="admin-tab" data-tab="published">✅ Published ({{ published_count }})</button>
     <button class="admin-tab" data-tab="claimed">🎯 Claimed ({{ claimed_count }})</button>
+    <button class="admin-tab" data-tab="archived">📁 Archived ({{ archived_count }})</button>
     <button class="admin-tab" data-tab="all">📋 All Items ({{ all_items|length }})</button>
   </div>
 
@@ -352,9 +583,18 @@
                   <td>{{ item.contact }}</td>
                   <td>{{ item.reported_at }}</td>
                   <td>
-                    <form method="POST" action="{{ base_url }}/admin/accept/{{ item.id }}" style="display:inline;">
-                      <button type="submit" class="btn-approve">Approve</button>
-                    </form>
+                    <div class="action-btns">
+                      <form method="POST" action="{{ base_url }}/admin/accept/{{ item.id }}" style="display:inline;">
+                        <button type="submit" class="btn-approve">Approve</button>
+                      </form>
+                      <a href="{{ base_url }}/admin/edit/{{ item.id }}" class="btn-edit">Edit</a>
+                      <form method="POST" action="{{ base_url }}/admin/archive/{{ item.id }}" style="display:inline;">
+                        <button type="submit" class="btn-archive">Archive</button>
+                      </form>
+                      <form method="POST" action="{{ base_url }}/admin/delete/{{ item.id }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this item?');">
+                        <button type="submit" class="btn-delete">Delete</button>
+                      </form>
+                    </div>
                   </td>
                 </tr>
                 <tr>
@@ -374,6 +614,60 @@
       </div>
     </div>
 
+    <!-- Claims Tab -->
+    <div class="tab-pane" id="claims" role="tabpanel">
+      <div class="table-container">
+        {% if pending_claims %}
+          {% for claim in pending_claims %}
+          <div class="claim-card">
+            <div class="claim-header">
+              <div class="claim-item-info">
+                {% if claim.item_image %}
+                  <img src="{{ claim.item_image }}" alt="{{ claim.item_title }}" class="claim-item-img">
+                {% else %}
+                  <div class="claim-item-img-placeholder">🚨</div>
+                {% endif %}
+                <div>
+                  <div class="claim-item-title">{{ claim.item_title }}</div>
+                  <div class="claim-item-meta">
+                    <span class="badge {% if claim.item_type == 'lost' %}badge-lost{% else %}badge-found{% endif %}">{{ claim.item_type|upper }}</span>
+                    &nbsp; 🏷️ {{ claim.item_category }} &nbsp; 📍 {{ claim.item_location }}
+                  </div>
+                  <div class="claim-item-desc">{{ claim.item_description[:150] }}{% if claim.item_description|length > 150 %}…{% endif %}</div>
+                </div>
+              </div>
+            </div>
+            <div class="claim-body">
+              <div class="claim-section">
+                <div class="claim-section-title">👤 Claimant Details</div>
+                <div class="claim-detail"><strong>Full Name:</strong> {{ claim.full_name }}</div>
+                <div class="claim-detail"><strong>Contact:</strong> {{ claim.contact }}</div>
+                <div class="claim-detail"><strong>Submitted:</strong> {{ claim.created_at }}</div>
+              </div>
+              <div class="claim-section">
+                <div class="claim-section-title">📝 Proof of Ownership</div>
+                <div class="claim-proof">{{ claim.proof }}</div>
+              </div>
+            </div>
+            <div class="claim-actions">
+              <form method="POST" action="{{ base_url }}/admin/confirm-claim/{{ claim.id }}" style="display:inline;">
+                <button type="submit" class="btn-confirm-claim" onclick="return confirm('Confirm this claim? The item will be marked as found and removed from the lost items page.');">✅ Item Found — Confirm Claim</button>
+              </form>
+              <form method="POST" action="{{ base_url }}/admin/reject-claim/{{ claim.id }}" style="display:inline;">
+                <button type="submit" class="btn-reject-claim" onclick="return confirm('Reject this claim?');">❌ Reject Claim</button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <p class="empty-state-text">No pending claims to review</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
     <!-- Published Items Tab -->
     <div class="tab-pane" id="published" role="tabpanel">
       <div class="table-container">
@@ -381,14 +675,15 @@
           <table class="admin-table">
             <thead>
               <tr>
-                <th style="width: 8%">Image</th>
-                <th style="width: 8%">ID</th>
-                <th style="width: 20%">Title</th>
-                <th style="width: 10%">Type</th>
-                <th style="width: 13%">Category</th>
-                <th style="width: 12%">Location</th>
-                <th style="width: 12%">Contact</th>
-                <th style="width: 9%">Date</th>
+                <th style="width: 6%">Image</th>
+                <th style="width: 7%">ID</th>
+                <th style="width: 16%">Title</th>
+                <th style="width: 8%">Type</th>
+                <th style="width: 10%">Category</th>
+                <th style="width: 10%">Location</th>
+                <th style="width: 10%">Contact</th>
+                <th style="width: 8%">Date</th>
+                <th style="width: 25%">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -412,6 +707,17 @@
                   <td>{{ item.location }}</td>
                   <td>{{ item.contact }}</td>
                   <td>{{ item.reported_at }}</td>
+                  <td>
+                    <div class="action-btns">
+                      <a href="{{ base_url }}/admin/edit/{{ item.id }}" class="btn-edit">Edit</a>
+                      <form method="POST" action="{{ base_url }}/admin/archive/{{ item.id }}" style="display:inline;">
+                        <button type="submit" class="btn-archive">Archive</button>
+                      </form>
+                      <form method="POST" action="{{ base_url }}/admin/delete/{{ item.id }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this item?');">
+                        <button type="submit" class="btn-delete">Delete</button>
+                      </form>
+                    </div>
+                  </td>
                 </tr>
               {% endfor %}
             </tbody>
@@ -432,13 +738,14 @@
           <table class="admin-table">
             <thead>
               <tr>
-                <th style="width: 8%">Image</th>
-                <th style="width: 8%">ID</th>
-                <th style="width: 20%">Title</th>
-                <th style="width: 10%">Type</th>
-                <th style="width: 18%">Category</th>
-                <th style="width: 18%">Contact</th>
-                <th style="width: 9%">Date</th>
+                <th style="width: 6%">Image</th>
+                <th style="width: 7%">ID</th>
+                <th style="width: 16%">Title</th>
+                <th style="width: 8%">Type</th>
+                <th style="width: 12%">Category</th>
+                <th style="width: 12%">Contact</th>
+                <th style="width: 8%">Date</th>
+                <th style="width: 25%">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -461,6 +768,17 @@
                   <td>{{ item.category }}</td>
                   <td>{{ item.contact }}</td>
                   <td>{{ item.reported_at }}</td>
+                  <td>
+                    <div class="action-btns">
+                      <a href="{{ base_url }}/admin/edit/{{ item.id }}" class="btn-edit">Edit</a>
+                      <form method="POST" action="{{ base_url }}/admin/archive/{{ item.id }}" style="display:inline;">
+                        <button type="submit" class="btn-archive">Archive</button>
+                      </form>
+                      <form method="POST" action="{{ base_url }}/admin/delete/{{ item.id }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this item?');">
+                        <button type="submit" class="btn-delete">Delete</button>
+                      </form>
+                    </div>
+                  </td>
                 </tr>
               {% endfor %}
             </tbody>
@@ -474,20 +792,82 @@
       </div>
     </div>
 
+    <!-- Archived Items Tab -->
+    <div class="tab-pane" id="archived" role="tabpanel">
+      <div class="table-container">
+        {% if archived_items %}
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="width: 6%">Image</th>
+                <th style="width: 7%">ID</th>
+                <th style="width: 18%">Title</th>
+                <th style="width: 8%">Type</th>
+                <th style="width: 12%">Category</th>
+                <th style="width: 12%">Contact</th>
+                <th style="width: 8%">Date</th>
+                <th style="width: 25%">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in archived_items %}
+                <tr>
+                  <td>
+                    {% if item.image %}
+                      <img src="{{ item.image }}" alt="{{ item.title }}" style="width: 50px; height: 50px; border-radius: 6px; object-fit: cover;">
+                    {% else %}
+                      <div style="width: 50px; height: 50px; border-radius: 6px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 24px;">📁</div>
+                    {% endif %}
+                  </td>
+                  <td><span class="item-id">{{ item.id }}</span></td>
+                  <td><span class="item-title">{{ item.title }}</span></td>
+                  <td>
+                    <span class="badge {% if item.type == 'lost' %}badge-lost{% else %}badge-found{% endif %}">
+                      {{ item.type|upper }}
+                    </span>
+                  </td>
+                  <td>{{ item.category }}</td>
+                  <td>{{ item.contact }}</td>
+                  <td>{{ item.reported_at }}</td>
+                  <td>
+                    <div class="action-btns">
+                      <form method="POST" action="{{ base_url }}/admin/accept/{{ item.id }}" style="display:inline;">
+                        <button type="submit" class="btn-approve">Restore</button>
+                      </form>
+                      <a href="{{ base_url }}/admin/edit/{{ item.id }}" class="btn-edit">Edit</a>
+                      <form method="POST" action="{{ base_url }}/admin/delete/{{ item.id }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to permanently delete this item?');">
+                        <button type="submit" class="btn-delete">Delete</button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-state-icon">📁</div>
+            <p class="empty-state-text">No archived items</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
     <!-- All Items Tab -->
     <div class="tab-pane" id="all" role="tabpanel">
       <div class="table-container">
         <table class="admin-table">
           <thead>
             <tr>
-              <th style="width: 8%">Image</th>
-              <th style="width: 8%">ID</th>
-              <th style="width: 18%">Title</th>
-              <th style="width: 10%">Type</th>
-              <th style="width: 12%">Status</th>
-              <th style="width: 13%">Category</th>
-              <th style="width: 13%">Contact</th>
-              <th style="width: 8%">Date</th>
+              <th style="width: 6%">Image</th>
+              <th style="width: 6%">ID</th>
+              <th style="width: 14%">Title</th>
+              <th style="width: 7%">Type</th>
+              <th style="width: 9%">Status</th>
+              <th style="width: 10%">Category</th>
+              <th style="width: 10%">Contact</th>
+              <th style="width: 7%">Date</th>
+              <th style="width: 25%">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -511,6 +891,7 @@
                   <span class="badge 
                     {% if item.publish_status == 'pending' %}badge-pending
                     {% elif item.publish_status == 'published' %}badge-published
+                    {% elif item.publish_status == 'archived' %}badge-archived
                     {% else %}badge-claimed{% endif %}">
                     {{ item.publish_status|upper }}
                   </span>
@@ -518,6 +899,19 @@
                 <td>{{ item.category }}</td>
                 <td>{{ item.contact }}</td>
                 <td>{{ item.reported_at }}</td>
+                <td>
+                  <div class="action-btns">
+                    <a href="{{ base_url }}/admin/edit/{{ item.id }}" class="btn-edit">Edit</a>
+                    {% if item.publish_status != 'archived' %}
+                    <form method="POST" action="{{ base_url }}/admin/archive/{{ item.id }}" style="display:inline;">
+                      <button type="submit" class="btn-archive">Archive</button>
+                    </form>
+                    {% endif %}
+                    <form method="POST" action="{{ base_url }}/admin/delete/{{ item.id }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this item?');">
+                      <button type="submit" class="btn-delete">Delete</button>
+                    </form>
+                  </div>
+                </td>
               </tr>
             {% endfor %}
           </tbody>

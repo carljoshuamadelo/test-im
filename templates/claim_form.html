@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="form-page">
+    <div class="form-card" id="claimFormCard">
+
+        <!-- Header -->
+        <div class="form-card-header">
+            <span class="form-type-badge badge-found">✅ Claim Item</span>
+            <h1>Claim: {{ item.title }}</h1>
+            <p>Fill in your details and provide proof that this item belongs to you.</p>
+        </div>
+
+        <!-- Item Summary -->
+        <div style="background: var(--bg, #f1f5f9); border-radius: 12px; padding: 20px; margin-bottom: 30px; display: flex; gap: 20px; align-items: center;">
+            {% if item.image %}
+            <img src="{{ item.image }}" alt="{{ item.title }}" style="width: 80px; height: 80px; border-radius: 10px; object-fit: cover;">
+            {% else %}
+            <div style="width: 80px; height: 80px; border-radius: 10px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 32px;">🚨</div>
+            {% endif %}
+            <div>
+                <div style="font-weight: 700; font-size: 1.1rem; color: var(--text, #0f172a);">{{ item.title }}</div>
+                <div style="color: var(--text-muted, #64748b); font-size: 0.9rem; margin-top: 4px;">
+                    📍 {{ item.location }} &nbsp;·&nbsp; 📅 {{ item.date }} &nbsp;·&nbsp; 🏷️ {{ item.category }}
+                </div>
+                <div style="color: var(--text-muted, #64748b); font-size: 0.85rem; margin-top: 6px;">
+                    {{ item.description[:200] }}{% if item.description | length > 200 %}…{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Alerts -->
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            ⚠️ {{ error }}
+        </div>
+        {% endif %}
+
+        {% if success %}
+        <div class="alert alert-success" role="alert">
+            ✅ {{ success }}
+        </div>
+        {% endif %}
+
+        {% if not success %}
+        <!-- Claim Form -->
+        <form method="POST" action="{{ base_url }}/claim/{{ item.id }}" id="claimForm" novalidate>
+
+            <!-- Full Name -->
+            <div class="form-group">
+                <label class="form-label" for="full_name">
+                    Full Name <span class="req">*</span>
+                </label>
+                <input type="text" class="form-control" id="full_name" name="full_name"
+                       placeholder="Enter your full name" required>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="form-group">
+                <label class="form-label" for="contact">
+                    Contact Information <span class="req">*</span>
+                </label>
+                <input type="text" class="form-control" id="contact" name="contact"
+                       placeholder="Email address or phone number" required>
+            </div>
+
+            <!-- Proof of Ownership -->
+            <div class="form-group">
+                <label class="form-label" for="proof">
+                    Proof of Ownership <span class="req">*</span>
+                </label>
+                <textarea class="form-control" id="proof" name="proof"
+                          placeholder="Describe how you can prove this item belongs to you — serial numbers, unique marks, contents, purchase receipt details, etc."
+                          rows="5" required></textarea>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="submit-btn" id="submitClaimBtn" style="background: linear-gradient(135deg, #059669 0%, #047857 100%);">
+                ✅ Submit Claim
+            </button>
+        </form>
+        {% endif %}
+
+        <!-- Back link -->
+        <div style="text-align: center; margin-top: 1.5rem;">
+            <a href="{{ base_url }}/report-found" class="back-link">
+                ← Back to Lost Items List
+            </a>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

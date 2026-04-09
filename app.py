@@ -8,6 +8,7 @@ from datetime import datetime
 from werkzeug.middleware.shared_data import SharedDataMiddleware
 import json
 from http.cookies import SimpleCookie
+import mysql.connector
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
@@ -37,12 +38,49 @@ env = Environment(loader=FileSystemLoader("templates"))
 
 # Session and authentication storage (in-memory for demo)
 sessions = {}
-ADMIN_USERNAME = "admin"
-ADMIN_PASSWORD = "admin123"
-users_db = {
-    "user1@email.com": "password123",
-    "user2@email.com": "password456"
+
+# ------------------------
+# Database connection
+# ------------------------
+DB_CONFIG = {
+    "host": "localhost",
+    "user": "root",
+    "password": "",
+    "database": "lost_and_found_dbms",
 }
+
+def get_db():
+    """Get a MySQL database connection."""
+    return mysql.connector.connect(**DB_CONFIG)
+
+def db_fetch_all(query, params=None):
+    """Execute a SELECT query and return all rows as list of dicts."""
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute(query, params or ())
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return rows
+
+def db_fetch_one(query, params=None):
+    """Execute a SELECT query and return one row as dict."""
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute(query, params or ())
+    row = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    return row
+
+def db_execute(query, params=None):
+    """Execute an INSERT/UPDATE/DELETE query."""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute(query, params or ())
+    conn.commit()
+    cursor.close()
+    conn.close()
 
 def get_session(request):
     """Get current user session from cookies"""
@@ -81,9 +119,8 @@ def render(template, request=None, **context):
     )
 
 # ------------------------
-# In-memory data store
+# Categories
 # ------------------------
-items = []
 
 CATEGORIES = [
     "Electronics", "Bags", "Keys", "Clothing", "Jewelry",
@@ -98,23 +135,29 @@ url_map = Map([
     Rule("/lost", endpoint="lost_items"),
     Rule("/found", endpoint="found_items"),
     Rule("/report-lost", endpoint="report_lost", methods=["GET", "POST"]),
-    Rule("/report-found", endpoint="report_found", methods=["GET", "POST"]),
+    Rule("/report-found", endpoint="report_found"),
+    Rule("/claim/<item_id>", endpoint="claim_item", methods=["GET", "POST"]),
     Rule("/item/<item_id>", endpoint="item_detail"),
     Rule("/search", endpoint="search"),
     Rule("/login", endpoint="login", methods=["GET", "POST"]),
     Rule("/logout", endpoint="logout"),
     Rule("/admin", endpoint="admin_dashboard"),
     Rule("/admin/accept/<item_id>", endpoint="accept_item", methods=["POST"]),
+    Rule("/admin/delete/<item_id>", endpoint="delete_item", methods=["POST"]),
+    Rule("/admin/archive/<item_id>", endpoint="archive_item", methods=["POST"]),
+    Rule("/admin/edit/<item_id>", endpoint="edit_item", methods=["GET", "POST"]),
+    Rule("/admin/confirm-claim/<int:claim_id>", endpoint="confirm_claim", methods=["POST"]),
+    Rule("/admin/reject-claim/<int:claim_id>", endpoint="reject_claim", methods=["POST"]),
 ])
 
 # ------------------------
 # View functions
 # ------------------------
 def home(request):
-    total_lost = sum(1 for i in items if i["type"] == "lost" and i["publish_status"] == "published")
-    total_found = sum(1 for i in items if i["type"] == "found" and i["publish_status"] == "published")
-    total_claimed = sum(1 for i in items if i["publish_status"] == "claimed")
-    recent = sorted([i for i in items if i["publish_status"] == "published"], key=lambda x: x["reported_at"], reverse=True)[:6]
+    total_lost = db_fetch_one("SELECT COUNT(*) AS c FROM items WHERE type='lost' AND publish_status='published'")["c"]
+    total_found = db_fetch_one("SELECT COUNT(*) AS c FROM items WHERE type='found' AND publish_status='published'")["c"]
+    total_claimed = db_fetch_one("SELECT COUNT(*) AS c FROM items WHERE publish_status='claimed'")["c"]
+    recent = db_fetch_all("SELECT * FROM items WHERE publish_status='published' ORDER BY reported_at DESC LIMIT 6")
     return render(
         "home.html",
         request=request,
@@ -129,11 +172,15 @@ def home(request):
 def lost_items(request):
     category = request.args.get("category", "")
     location = request.args.get("location", "")
-    filtered = [i for i in items if i["type"] == "lost" and i["publish_status"] == "published"]
+    query = "SELECT * FROM items WHERE type='lost' AND publish_status='published'"
+    params = []
     if category:
-        filtered = [i for i in filtered if i["category"].lower() == category.lower()]
+        query += " AND LOWER(category) = LOWER(%s)"
+        params.append(category)
     if location:
-        filtered = [i for i in filtered if location.lower() in i["location"].lower()]
+        query += " AND LOWER(location) LIKE LOWER(%s)"
+        params.append(f"%{location}%")
+    filtered = db_fetch_all(query, params)
     return render(
         "lost_items.html",
         request=request,
@@ -148,11 +195,16 @@ def lost_items(request):
 def found_items(request):
     category = request.args.get("category", "")
     location = request.args.get("location", "")
-    filtered = [i for i in items if i["type"] == "found" and i["publish_status"] == "published"]
+    query = "SELECT * FROM items WHERE publish_status='claimed'"
+    params = []
     if category:
-        filtered = [i for i in filtered if i["category"].lower() == category.lower()]
+        query += " AND LOWER(category) = LOWER(%s)"
+        params.append(category)
     if location:
-        filtered = [i for i in filtered if location.lower() in i["location"].lower()]
+        query += " AND LOWER(location) LIKE LOWER(%s)"
+        params.append(f"%{location}%")
+    query += " ORDER BY reported_at DESC"
+    filtered = db_fetch_all(query, params)
     return render(
         "found_items.html",
         request=request,
@@ -181,15 +233,11 @@ def report_lost(request):
             error = "Please fill in all required fields."
         else:
             image_path = save_upload(request.files.get("image"))
-            new_item = {
-                "id": str(uuid.uuid4())[:8],
-                "type": "lost",
-                "publish_status": "pending",
-                "reported_at": datetime.now().strftime("%Y-%m-%d"),
-                "image": image_path,
-                **form_data,
-            }
-            items.append(new_item)
+            item_id = str(uuid.uuid4())[:8]
+            db_execute(
+                "INSERT INTO items (id, type, publish_status, title, category, date, location, description, contact, image, reported_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (item_id, "lost", "pending", form_data["title"], form_data["category"], form_data["date"], form_data["location"], form_data["description"], form_data["contact"], image_path, datetime.now().strftime("%Y-%m-%d"))
+            )
             success = f'Your lost item report for "{form_data["title"]}" has been submitted successfully!'
             form_data = {}
     return render(
@@ -205,47 +253,62 @@ def report_lost(request):
 
 
 def report_found(request):
+    category = request.args.get("category", "")
+    location = request.args.get("location", "")
+    query = "SELECT * FROM items WHERE type='lost' AND publish_status='published'"
+    params = []
+    if category:
+        query += " AND LOWER(category) = LOWER(%s)"
+        params.append(category)
+    if location:
+        query += " AND LOWER(location) LIKE LOWER(%s)"
+        params.append(f"%{location}%")
+    query += " ORDER BY reported_at DESC"
+    lost_items_list = db_fetch_all(query, params)
+    return render(
+        "report_found.html",
+        request=request,
+        title="Found an Item?",
+        items=lost_items_list,
+        categories=CATEGORIES,
+        selected_category=category,
+        location_filter=location,
+    )
+
+
+def claim_item(request, item_id):
+    item = db_fetch_one("SELECT * FROM items WHERE id = %s", (item_id,))
+    if not item:
+        return Response("Item not found", status=404)
+    
     error = None
     success = None
-    form_data = {}
     if request.method == "POST":
-        form_data = {
-            "title": request.form.get("title", "").strip(),
-            "category": request.form.get("category", "").strip(),
-            "date": request.form.get("date", "").strip(),
-            "location": request.form.get("location", "").strip(),
-            "description": request.form.get("description", "").strip(),
-            "contact": request.form.get("contact", "").strip(),
-        }
-        if not all(form_data.values()):
+        full_name = request.form.get("full_name", "").strip()
+        contact = request.form.get("contact", "").strip()
+        proof = request.form.get("proof", "").strip()
+        
+        if not all([full_name, contact, proof]):
             error = "Please fill in all required fields."
         else:
-            image_path = save_upload(request.files.get("image"))
-            new_item = {
-                "id": str(uuid.uuid4())[:8],
-                "type": "found",
-                "publish_status": "pending",
-                "reported_at": datetime.now().strftime("%Y-%m-%d"),
-                "image": image_path,
-                **form_data,
-            }
-            items.append(new_item)
-            success = f'Thank you! Your found item report for "{form_data["title"]}" has been submitted.'
-            form_data = {}
+            db_execute(
+                "INSERT INTO claims (item_id, full_name, contact, proof) VALUES (%s, %s, %s, %s)",
+                (item_id, full_name, contact, proof)
+            )
+            success = f'Your claim for "{item["title"]}" has been submitted! The admin will review it.'
+    
     return render(
-        "report_form.html",
+        "claim_form.html",
         request=request,
-        title="Report Found Item",
-        form_type="found",
-        categories=CATEGORIES,
+        title=f"Claim: {item['title']}",
+        item=item,
         error=error,
         success=success,
-        form_data=form_data,
     )
 
 
 def item_detail(request, item_id):
-    item = next((i for i in items if i["id"] == item_id), None)
+    item = db_fetch_one("SELECT * FROM items WHERE id = %s", (item_id,))
     if not item:
         return Response("Item not found", status=404)
     return render("item_detail.html", request=request, title=item["title"], item=item)
@@ -255,51 +318,31 @@ def search(request):
     query = request.args.get("q", "").strip()
     results = []
     if query:
-        q = query.lower()
-        results = [
-            i for i in items
-            if i["publish_status"] == "published" and (
-                q in i["title"].lower()
-                or q in i["description"].lower()
-                or q in i["location"].lower()
-                or q in i["category"].lower()
-            )
-        ]
+        like = f"%{query}%"
+        results = db_fetch_all(
+            "SELECT * FROM items WHERE publish_status='published' AND (LOWER(title) LIKE LOWER(%s) OR LOWER(description) LIKE LOWER(%s) OR LOWER(location) LIKE LOWER(%s) OR LOWER(category) LIKE LOWER(%s))",
+            (like, like, like, like)
+        )
     return render("search_results.html", request=request, title="Search Results", query=query, results=results)
 
 
 def login(request):
     error = None
     if request.method == "POST":
-        login_type = request.form.get("login_type", "user")
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "").strip()
         
-        if login_type == "admin":
-            if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
-                response = Response()
-                response = set_session(response, "admin", "admin")
-                response.status_code = 302
-                response.headers["Location"] = "/admin"
-                return response
-            else:
-                error = "Invalid admin credentials."
-        else:  # user login
-            if username in users_db and users_db[username] == password:
-                response = Response()
-                response = set_session(response, "user", username)
-                response.status_code = 302
-                response.headers["Location"] = "/"
-                return response
-            else:
-                # Allow any email/password combination for new users
-                response = Response()
-                response = set_session(response, "user", username)
-                response.status_code = 302
-                response.headers["Location"] = "/"
-                return response
+        admin = db_fetch_one("SELECT * FROM admins WHERE username = %s AND password = %s", (username, password))
+        if admin:
+            response = Response()
+            response = set_session(response, "admin", admin["username"])
+            response.status_code = 302
+            response.headers["Location"] = "/admin"
+            return response
+        else:
+            error = "Invalid admin credentials."
     
-    return render("login.html", request=request, title="Login", error=error)
+    return render("login.html", request=request, title="Admin Login", error=error)
 
 
 def logout(request):
@@ -316,10 +359,16 @@ def admin_dashboard(request):
         response = Response("Unauthorized", status=401)
         return response
     
-    pending_items = [i for i in items if i["publish_status"] == "pending"]
-    published_items = [i for i in items if i["publish_status"] == "published"]
-    claimed_items = [i for i in items if i["publish_status"] == "claimed"]
-    all_items = sorted(items, key=lambda x: x["reported_at"], reverse=True)
+    pending_items = db_fetch_all("SELECT * FROM items WHERE publish_status='pending'")
+    published_items = db_fetch_all("SELECT * FROM items WHERE publish_status='published'")
+    claimed_items = db_fetch_all("SELECT * FROM items WHERE publish_status='claimed'")
+    archived_items = db_fetch_all("SELECT * FROM items WHERE publish_status='archived'")
+    all_items = db_fetch_all("SELECT * FROM items ORDER BY reported_at DESC")
+    pending_claims = db_fetch_all(
+        "SELECT c.*, i.title AS item_title, i.type AS item_type, i.category AS item_category, "
+        "i.location AS item_location, i.description AS item_description, i.image AS item_image "
+        "FROM claims c JOIN items i ON c.item_id = i.id ORDER BY c.created_at DESC"
+    )
     
     return render(
         "admin_dashboard.html",
@@ -328,10 +377,14 @@ def admin_dashboard(request):
         pending_items=pending_items,
         published_items=published_items,
         claimed_items=claimed_items,
+        archived_items=archived_items,
         all_items=all_items,
+        pending_claims=pending_claims,
         pending_count=len(pending_items),
         published_count=len(published_items),
         claimed_count=len(claimed_items),
+        archived_count=len(archived_items),
+        claims_count=len(pending_claims),
     )
 
 
@@ -341,9 +394,116 @@ def accept_item(request, item_id):
         return Response("Unauthorized", status=401)
     
     if request.method == "POST":
-        item = next((i for i in items if i["id"] == item_id), None)
-        if item:
-            item["publish_status"] = "published"
+        db_execute("UPDATE items SET publish_status='published' WHERE id = %s", (item_id,))
+    
+    response = Response()
+    response.status_code = 302
+    response.headers["Location"] = "/admin"
+    return response
+
+
+def delete_item(request, item_id):
+    session = get_session(request)
+    if not session or session["type"] != "admin":
+        return Response("Unauthorized", status=401)
+    
+    if request.method == "POST":
+        db_execute("DELETE FROM claims WHERE item_id = %s", (item_id,))
+        db_execute("DELETE FROM items WHERE id = %s", (item_id,))
+    
+    response = Response()
+    response.status_code = 302
+    response.headers["Location"] = "/admin"
+    return response
+
+
+def archive_item(request, item_id):
+    session = get_session(request)
+    if not session or session["type"] != "admin":
+        return Response("Unauthorized", status=401)
+    
+    if request.method == "POST":
+        db_execute("UPDATE items SET publish_status='archived' WHERE id = %s", (item_id,))
+    
+    response = Response()
+    response.status_code = 302
+    response.headers["Location"] = "/admin"
+    return response
+
+
+def edit_item(request, item_id):
+    session = get_session(request)
+    if not session or session["type"] != "admin":
+        return Response("Unauthorized", status=401)
+    
+    item = db_fetch_one("SELECT * FROM items WHERE id = %s", (item_id,))
+    if not item:
+        return Response("Item not found", status=404)
+    
+    error = None
+    success = None
+    if request.method == "POST":
+        title = request.form.get("title", "").strip()
+        category = request.form.get("category", "").strip()
+        date = request.form.get("date", "").strip()
+        location = request.form.get("location", "").strip()
+        description = request.form.get("description", "").strip()
+        contact = request.form.get("contact", "").strip()
+        item_type = request.form.get("type", "").strip()
+        publish_status = request.form.get("publish_status", "").strip()
+        
+        if not all([title, category, date, location, description, contact]):
+            error = "Please fill in all required fields."
+        else:
+            image_path = save_upload(request.files.get("image"))
+            if image_path:
+                db_execute(
+                    "UPDATE items SET title=%s, category=%s, date=%s, location=%s, description=%s, contact=%s, type=%s, publish_status=%s, image=%s WHERE id=%s",
+                    (title, category, date, location, description, contact, item_type, publish_status, image_path, item_id)
+                )
+            else:
+                db_execute(
+                    "UPDATE items SET title=%s, category=%s, date=%s, location=%s, description=%s, contact=%s, type=%s, publish_status=%s WHERE id=%s",
+                    (title, category, date, location, description, contact, item_type, publish_status, item_id)
+                )
+            success = f'Item "{title}" has been updated successfully!'
+            item = db_fetch_one("SELECT * FROM items WHERE id = %s", (item_id,))
+    
+    return render(
+        "edit_item.html",
+        request=request,
+        title=f"Edit: {item['title']}",
+        item=item,
+        categories=CATEGORIES,
+        error=error,
+        success=success,
+    )
+
+
+def confirm_claim(request, claim_id):
+    session = get_session(request)
+    if not session or session["type"] != "admin":
+        return Response("Unauthorized", status=401)
+    
+    if request.method == "POST":
+        claim = db_fetch_one("SELECT * FROM claims WHERE id = %s", (claim_id,))
+        if claim:
+            db_execute("UPDATE items SET publish_status='claimed' WHERE id = %s", (claim["item_id"],))
+            db_execute("DELETE FROM claims WHERE item_id = %s", (claim["item_id"],))
+    
+    response = Response()
+    response.status_code = 302
+    response.headers["Location"] = "/admin"
+    return response
+
+
+def reject_claim(request, claim_id):
+    session = get_session(request)
+    if not session or session["type"] != "admin":
+        return Response("Unauthorized", status=401)
+    
+    if request.method == "POST":
+        db_execute("DELETE FROM claims WHERE id = %s", (claim_id,))
     
     response = Response()
     response.status_code = 302
